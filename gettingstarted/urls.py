@@ -17,5 +17,6 @@ import stattracker.views
 urlpatterns = [
     path("", stattracker.views.index, name="index"),
     path("admin/", admin.site.urls),
-    path("importdata/", stattracker.views.importdata, name="importdata")
+    path("importdata/", stattracker.views.importdata, name="importdata"),
+    path("runanalytics/", stattracker.views.run_analytics, name="runanalytics")
 ]
