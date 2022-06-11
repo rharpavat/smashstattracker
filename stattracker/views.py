@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 
 import gspread
+import json
 import os
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -10,14 +11,12 @@ from .models import MatchDataTest
 
 # Create your views here.
 def index(request):
-    # return HttpResponse('Hello from Python!')
     return render(request, "index.html")
-
- #    return render(request, "db.html", {"greetings": greetings})
 
 def importdata(request):
     scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json(os.environ.get('GOOGLE_API_KEY_FILE'),scope)
+    apikey = json.loads(os.environ.get('GOOGLE_API_KEY_FILE'))
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(apikey,scope)
     client = gspread.authorize(creds)
 
     sheet = client.open("SmashStats").worksheet("StatTest")
@@ -42,7 +41,7 @@ def importdata(request):
         for item in consolidatedData
     ]
 
-    MatchDataTest.objects.bulk_create(convertedData, ignore_conflicts=True)
+    MatchDataTest.objects.bulk_create(convertedData, ignore_conflicts=True, batch_size=100)
 
     return redirect('index')
 
