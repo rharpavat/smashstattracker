@@ -1,9 +1,7 @@
 from django.contrib import messages
-from django.db.models import Sum
-from django.db.models import Avg
+from django.db.models import Sum, Avg, Count, Max
 from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 import gspread
 import json
@@ -24,12 +22,54 @@ def run_analytics(request):
 
     pnames = get_unique_player_names()
 
+    stat_objects = []
+
     for name in pnames:
-        pinfo = {}
-        pinfo['name'] = name
-        pinfo['totalkills'] = get_total_kills(name)
-        pinfo['avgkills'] = get_avg_kills(name)
-        context['playerinfo'].append(pinfo)
+
+        totalkills = get_total_kills(name)
+        totaldeaths = get_total_deaths(name)
+
+        stat_obj = PlayerStatsTest(
+            playerid = name,
+            collectiondate = get_latest_played_date(name),
+            totalkills = totalkills,
+            avgkills = get_avg_kills(name),
+            totaldeaths = totaldeaths,
+            avgdeaths = get_avg_deaths(name),
+            totalsds = get_total_sds(name),
+            avgsds = get_avg_sds(name),
+            totaldmggiven = get_total_dmggiven(name),
+            avgdmggiven = get_avg_dmggiven(name),
+            totaldmgtaken = get_total_dmgtaken(name),
+            avgdmgtaken = get_avg_dmgtaken(name),
+            totalwins = get_total_wins(name),
+            kdratio = round((totalkills / totaldeaths), 2),
+            avgrank = get_avg_rank(name)
+        )
+
+        stat_objects.append(stat_obj)
+
+        # pinfo = {}
+        # pinfo['name'] = name
+        # totalkills = get_total_kills(name)
+        # pinfo['totalkills'] = totalkills
+        # pinfo['avgkills'] = get_avg_kills(name)
+        # totaldeaths = get_total_deaths(name)
+        # pinfo['totaldeaths'] = totaldeaths
+        # pinfo['avgdeaths'] = get_avg_deaths(name)
+        # pinfo['totalsds'] = get_total_sds(name)
+        # pinfo['avgsds'] = get_avg_sds(name)
+        # pinfo['totaldmggiven'] = get_total_dmggiven(name)
+        # pinfo['avgdmggiven'] = get_avg_dmggiven(name)
+        # pinfo['totaldmgtaken'] = get_total_dmgtaken(name)
+        # pinfo['avgdmgtaken'] = get_avg_dmgtaken(name)
+        # pinfo['totalwins'] = get_total_wins(name)
+        # pinfo['kdratio'] = round((totalkills / totaldeaths), 2)
+        # pinfo['avgrank'] = get_avg_rank(name)
+        # pinfo['lastplayeddate'] = get_latest_played_date(name)
+        # context['playerinfo'].append(pinfo)
+
+    PlayerStatsTest.objects.bulk_create(stat_objects, ignore_conflicts=True)
 
     return render(request, "testdatadisplayer.html", context)
 
@@ -53,8 +93,8 @@ def importdata(request):
             kills = item[4],
             deaths = item[5],
             selfdestructs = item[6],
-            damagegiven = item[7],
-            damagetaken = item[8],
+            damagegiven = None if (item[7] == 'NULL') else item[7],
+            damagetaken = None if (item[8] == 'NULL') else item[8],
             stagename = item[9],
             matchdate = item[10],
         )
@@ -65,18 +105,6 @@ def importdata(request):
 
     return redirect('index')
 
-# playerid = models.CharField(max_length=20)
-# collectiondate = models.DateField()
-# totalkills = models.IntegerField()
-# avgkills = models.DecimalField(max_digits=3, decimal_places=2)
-# totaldeaths = models.IntegerField()
-# avgdeaths = models.DecimalField(max_digits=3, decimal_places=2)
-# totalsds = models.IntegerField()
-# avgsds = models.DecimalField(max_digits=3, decimal_places=2)
-# totalwins = models.IntegerField()
-# kdratio = models.DecimalField(max_digits=3, decimal_places=2)
-# avgrank = models.DecimalField(max_digits=3, decimal_places=2)
-
 def get_unique_player_names():
     records = MatchDataTest.objects.values('playerid').distinct()
     namelist = [item['playerid'] for item in records]
@@ -84,10 +112,65 @@ def get_unique_player_names():
 
 def get_total_kills(playerid):
     records = MatchDataTest.objects.filter(playerid=playerid).values('kills')
-    sum_info = records.aggregate(Sum('kills'))
-    return sum_info['kills__sum']
+    info = records.aggregate(Sum('kills'))
+    return info['kills__sum']
 
 def get_avg_kills(playerid):
     records = MatchDataTest.objects.filter(playerid=playerid).values('kills')
-    sum_info = records.aggregate(Avg('kills'))
-    return sum_info['kills__avg']
+    info = records.aggregate(Avg('kills'))
+    return info['kills__avg']
+
+def get_total_deaths(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('deaths')
+    info = records.aggregate(Sum('deaths'))
+    return info['deaths__sum']
+
+def get_avg_deaths(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('deaths')
+    info = records.aggregate(Avg('deaths'))
+    return info['deaths__avg']
+
+def get_total_sds(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('selfdestructs')
+    info = records.aggregate(Sum('selfdestructs'))
+    return info['selfdestructs__sum']
+
+def get_avg_sds(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('selfdestructs')
+    info = records.aggregate(Avg('selfdestructs'))
+    return info['selfdestructs__avg']
+
+def get_total_wins(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid, playerrank=1).values('playerrank')
+    info = records.aggregate(Count('playerrank'))
+    return info['playerrank__count']
+
+def get_avg_rank(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('playerrank')
+    info = records.aggregate(Avg('playerrank'))
+    return info['playerrank__avg']
+
+def get_total_dmggiven(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('damagegiven').exclude(damagegiven__isnull=True)
+    info = records.aggregate(Sum('damagegiven'))
+    return info['damagegiven__sum']
+
+def get_avg_dmggiven(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('damagegiven').exclude(damagegiven__isnull=True)
+    info = records.aggregate(Avg('damagegiven'))
+    return info['damagegiven__avg']
+
+def get_total_dmgtaken(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('damagetaken').exclude(damagetaken__isnull=True)
+    info = records.aggregate(Sum('damagetaken'))
+    return info['damagetaken__sum']
+
+def get_avg_dmgtaken(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('damagetaken').exclude(damagetaken__isnull=True)
+    info = records.aggregate(Avg('damagetaken'))
+    return info['damagetaken__avg']
+
+def get_latest_played_date(playerid):
+    records = MatchDataTest.objects.filter(playerid=playerid).values('matchdate').distinct()
+    info = records.aggregate(Max('matchdate'))
+    return info['matchdate__max']
