@@ -4,7 +4,6 @@ from django.shortcuts import redirect
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from pprint import pprint as pp
 
 from .models import MatchDataTest
 
