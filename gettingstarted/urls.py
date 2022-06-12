@@ -17,6 +17,7 @@ import stattracker.views
 urlpatterns = [
     path("", stattracker.views.index, name="index"),
     path("admin/", admin.site.urls),
+    path("manage/", stattracker.views.manage, name="manage"),
     path("importdata/", stattracker.views.importdata, name="importdata"),
     path("runanalytics/", stattracker.views.run_analytics, name="runanalytics"),
     path("generateleaderboard/", stattracker.views.generate_leaderboard, name="generateleaderboard"),

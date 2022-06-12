@@ -39,8 +39,8 @@ def index(request):
     context["leaderboard"] = get_leaderboard_info()
     return render(request, "index.html", context)
 
-def view_graphs(request):
-    return render(request, "graphs.html")
+def manage(request):
+    return render(request, "management.html")
 
 def run_analytics(request):
     context = {

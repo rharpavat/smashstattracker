@@ -4,7 +4,9 @@
 
 <div class="jumbotron text-center">
   <div class="container">
-    <h1>Current Leaderboard</h1>
+    <div class="container">
+      <h1><img class="lang-logo" src="{% static 'smash-ball-logo.png'%}"> Smash Ultimate Stat Tracker</h1>
+    </div>
     <div class="row">
       <table class="styled-table">
         <tbody>
@@ -59,6 +61,7 @@
           </tbody>
         </table>
       </div>
+      <wbr/>
       <div class="col-md-7">
         <table class="styled-table">
           <tbody>
@@ -303,18 +306,6 @@
       <script>
           renderLineChart("#avgdmgtaken", "line");
       </script>
-    </div>
-  </div>
-  <div class="jumbotron text-center">
-    <div class="container">
-      <a href="/" class="lang-logo">
-        <img src="{% static 'smash-ball-logo.png'%}">
-      </a>
-      <h1>Smash Ultimate Stat Tracker</h1>
-      <p>Tracks a variety of stats for Smash Ultimate games and displays a leaderboard! :)</p>
-      <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'importdata' %}'"><span class="glyphicon glyphicon-flash"></span>Import Data</a>
-      <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'runanalytics' %}'"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
-      <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'generateleaderboard' %}'"><span class="glyphicon glyphicon-flash"></span>Generate Leaderboard</a>
     </div>
   </div>
 </div>
