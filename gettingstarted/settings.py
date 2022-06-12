@@ -130,3 +130,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
 
 django_heroku.settings(locals())
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db import IntegrityError
 from django.db.models import Sum, Avg, Count, Max
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -16,7 +17,16 @@ sys.path.insert(0, str(Path(__file__).parent))
 from chart.PieChart import PieChart
 from chart.LineChart import LineChart
 
-from .models import MatchData, PlayerStats
+from .models import MatchData, PlayerStats, Leaderboard
+
+# ================================
+# SHARED VARIABLES
+# ================================
+
+int_stats = ['totalkills', 'totaldeaths', 'totalsds', 'totaldmggiven', 'totaldmgtaken', 'totalwins']
+float_stats = ['avgkills', 'avgdeaths', 'avgsds', 'avgdmggiven', 'avgdmgtaken', 'kdratio', 'avgrank']
+colors = ["#ea5545", "#ffa600", "#87bc45", "#27aeef", "#b33dc6"]
+bgcolors = ["rgba(234,85,69,0.5)", "rgba(255,166,0,0.5)", "rgba(135,188,69,0.5)", "rgba(39,174,239,0.5)", "rgba(179,61,198,0.5)"]
 
 # ================================
 # VIEW FUNCTIONS
@@ -93,7 +103,57 @@ def run_analytics(request):
             except IntegrityError:
                 continue
 
-    return render(request, "testdatadisplayer.html", context)
+    return redirect('index')
+
+def generate_leaderboard(request):
+    context = {}
+    stat_list = int_stats + float_stats
+    players = get_unique_player_names()
+
+    leaderboard = {
+        stat: ["nullplayer", -1]
+        for stat in stat_list
+    }
+
+    leaderboard['avgrank'][1] = 100
+
+    for player in players:
+        statinfo = get_latest_records_for_player(player)
+
+        for stat in stat_list:
+            value = parse_stat_value(stat, statinfo[stat])
+            curmax = leaderboard[stat][1]
+            if stat == 'avgrank':
+                if value < curmax:
+                    leaderboard[stat] = [player, value]
+            elif curmax < value:
+                leaderboard[stat] = [player, value]
+            elif curmax == value:
+                newplayer = ", " + player
+                leaderboard[stat][0] += newplayer
+
+    context["otherdata"] = leaderboard
+
+    for key, value in leaderboard.items():
+        if value[1] == -1:
+            leaderboard[key][0] = "N/A"
+
+    stat_objects = [
+        Leaderboard(
+            statistic = stat,
+            playerid = details[0],
+            value = details[1]
+        )
+        for stat, details in leaderboard.items()
+    ]
+
+    for obj in stat_objects:
+        try:
+            obj.save()
+        except IntegrityError:
+            continue
+
+    return redirect('index')
 
 def importdata(request):
     scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
@@ -262,11 +322,6 @@ def get_latest_played_date(playerid):
 # PLAYERSTATS QUERY UTIL FUNCTIONS
 # ================================
 
-int_stats = ['totalkills', 'totaldeaths', 'totalsds', 'totaldmggiven', 'totaldmgtaken', 'totalwins']
-float_stats = ['avgkills', 'avgdeaths', 'avgsds', 'avgdmggiven', 'avgdmgtaken', 'kdratio', 'avgrank']
-colors = ["#ea5545", "#ffa600", "#87bc45", "#27aeef", "#b33dc6"]
-bgcolors = ["rgba(234,85,69,0.5)", "rgba(255,166,0,0.5)", "rgba(135,188,69,0.5)", "rgba(39,174,239,0.5)", "rgba(179,61,198,0.5)"]
-
 # -------- GENERIC STAT UTIL FUNCTIONS --------
 
 def get_stat_chart_over_time(stat):
@@ -354,6 +409,10 @@ def parse_stat_value(statname, value): #TODO: Add exception case if the value do
     if statname in float_stats:
         return float(value)
 
+def get_latest_records_for_player(playerid):
+    latest_date_played = get_latest_played_date(playerid)
+    records = PlayerStats.objects.filter(playerid=playerid, collectiondate=latest_date_played)
+
+    return records.values()[0]
+
 # -------- INDIVIDUAL STAT UTIL FUNCTIONS --------
-def get_aggregated_avg_kills():
-    return get_aggregated_stat('avgkills')

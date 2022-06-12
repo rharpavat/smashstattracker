@@ -16,11 +16,7 @@
 </div>
 <div class="container">
   <div class="alert alert-info text-center" role="alert">
-    {% for player in playerinfo %}
-      <div class="user_pod">
-        <b>TotalDmgGiven:</b> {{ player.totaldmggiven }} <b>AvgDamageGiven:</b> {{ player.avgdmggiven }} <b>TotalDmgTaken:</b> {{ player.totaldmgtaken }} <b>AvgDmgTaken:</b> {{ player.avgdmgtaken }}
-      </div>
-    {% endfor %}
+    {{ otherdata }}
   </div>
   <hr>
   <div class="row">
