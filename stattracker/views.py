@@ -21,70 +21,14 @@ from .models import MatchData, PlayerStats
 # ================================
 # VIEW FUNCTIONS
 # ================================
+
+# -------- WEBPAGE RENDERING FUNCTIONS --------
+
 def index(request):
     return render(request, "index.html")
 
-def get_total_kills_chart(request):
-    return get_stat_chart_over_time('totalkills')
-
-def get_avg_kills_chart(request):
-    return get_stat_chart_over_time('avgkills')
-
-def get_total_deaths_chart(request):
-    return get_stat_chart_over_time('totaldeaths')
-
-def get_avg_deaths_chart(request):
-    return get_stat_chart_over_time('avgdeaths')
-
-def get_total_sds_chart(request):
-    return get_stat_chart_over_time('totalsds')
-
-def get_avg_sds_chart(request):
-    return get_stat_chart_over_time('avgsds')
-
-def get_total_wins_chart(request):
-    return get_stat_chart_over_time('totalwins')
-
-def get_latest_total_wins_chart(request):
-    return get_total_stat_chart('totalwins')
-
-def get_avg_rank_chart(request):
-    return get_stat_chart_over_time('avgrank')
-
 def view_graphs(request):
-    context = {}
-    # win_info = get_aggregated_total_wins()
-
-    # unique_players = get_unique_player_names()
-
-    # NewChart = PieChart(list(win_info.values()), list(win_info.keys()))
-    # NewChart.data.label = "My Favourite Numbers"      # can change data after creation
-
-    # kill_info = get_aggregated_avg_kills()
-    
-    # # playerlist = kill_info.keys()
-    # datelist = [item[1] for item in kill_info.keys()]
-    # uniquedates = []
-    # for date in datelist:
-    #     if date not in uniquedates:
-    #         uniquedates.append(date)
-    
-    # sorteddates = sorted(uniquedates)
-
-    # ChartJSON = NewChart.get()
-
-    # context["chartJSON"] = ChartJSON
-    # context["killChartJSON"] = lchart.get()
-    # # context["otherdata"] = list(datasets.values())
-    # context["otherdata2"] = kill_info
-    # context["data"] = list(datasets.values())
-    # context["labels"] = sorteddates
-
-
-    return render(request=request,
-                  template_name='graphs.html',
-                  context=context)
-    # return render(request, "graphs.html")
+    return render(request, "graphs.html")
 
 def run_analytics(request):
     context = {
@@ -154,7 +98,7 @@ def run_analytics(request):
 def importdata(request):
     scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
     apikey = json.loads(os.environ.get('GOOGLE_API_KEY_FILE'))
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(apikey,scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(apikey, scope)
     client = gspread.authorize(creds)
 
     sheet = client.open("SmashStats").worksheet("StatSheet")
@@ -183,10 +127,71 @@ def importdata(request):
 
     return redirect('index')
 
+# -------- JSON CHART REQUEST FUNCTIONS --------
+
+def get_total_kills_chart(request):
+    return get_stat_chart_over_time('totalkills')
+
+def get_avg_kills_chart(request):
+    return get_stat_chart_over_time('avgkills')
+
+def get_latest_total_kills_chart(request):
+    return get_total_stat_chart('totalkills')
+
+def get_kdratio_chart(request):
+    return get_stat_chart_over_time('kdratio')
+
+def get_total_deaths_chart(request):
+    return get_stat_chart_over_time('totaldeaths')
+
+def get_avg_deaths_chart(request):
+    return get_stat_chart_over_time('avgdeaths')
+
+def get_latest_total_deaths_chart(request):
+    return get_total_stat_chart('totaldeaths')
+
+def get_total_sds_chart(request):
+    return get_stat_chart_over_time('totalsds')
+
+def get_avg_sds_chart(request):
+    return get_stat_chart_over_time('avgsds')
+
+def get_latest_total_sds_chart(request):
+    return get_total_stat_chart('totalsds')
+
+def get_total_wins_chart(request):
+    return get_stat_chart_over_time('totalwins')
+
+def get_latest_total_wins_chart(request):
+    return get_total_stat_chart('totalwins')
+
+def get_avg_rank_chart(request):
+    return get_stat_chart_over_time('avgrank')
+
+def get_total_dmggiven_chart(request):
+    return get_stat_chart_over_time('totaldmggiven')
+
+def get_avg_dmggiven_chart(request):
+    return get_stat_chart_over_time('avgdmggiven')
+
+def get_latest_total_dmggiven_chart(request):
+    return get_total_stat_chart('totaldmggiven')
+
+def get_total_dmgtaken_chart(request):
+    return get_stat_chart_over_time('totaldmgtaken')
+
+def get_avg_dmgtaken_chart(request):
+    return get_stat_chart_over_time('avgdmgtaken')
+
+def get_latest_total_dmgtaken_chart(request):
+    return get_total_stat_chart('totaldmgtaken')
+
+# -------- UTILITY FUNCTIONS --------
+
 def get_unique_player_names():
     records = MatchData.objects.values('playerid').distinct()
     namelist = [item['playerid'] for item in records]
-    return namelist
+    return sorted(namelist, reverse=True)
 
 def get_total_kills(playerid):
     records = MatchData.objects.filter(playerid=playerid).values('kills')
@@ -340,6 +345,9 @@ def get_latest_total_stat_for_player(statname, playerid):
     return records[0][statname]
 
 def parse_stat_value(statname, value): #TODO: Add exception case if the value doesn't fall under either category
+    if value is None:
+        return -1
+
     if statname in int_stats:
         return int(value)
 

@@ -3,41 +3,9 @@
 
 {% block content %}
 <div class="container">
-  <h1><b>Total Wins</b></h1>
-  <!-- <canvas id="myChart"></canvas>
-
-  <script>
-      var data = {{ chartJSON | safe }}
-      var ctx = document.getElementById("myChart").getContext('2d');
-      var myChart = new Chart(ctx, data);
-  </script> -->
-  <hr>
-  <h1><b>Avg. Kills Over Time</b></h1>
-
-  <hr>
   <div class="row">
-    <div class="col-md-6">
-      <h3><b>Total Kills Over Time</b></h3>
-      <div id="container">
-        <canvas id="totalkills" data-url="{% url 'totalkills' %}"></canvas>
-      </div>
-      <script>
-          renderLineChart("#totalkills");
-      </script>
-    </div>
-    <div class="col-md-6">
-      <h3><b>Avg. Kills Over Time</b></h3>
-      <div id="container">
-        <canvas id="avgkills" data-url="{% url 'avgkills' %}"></canvas>
-      </div>
-      <script>
-          renderLineChart("#avgkills");
-      </script>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <h3><b>Latest Total Wins</b></h3>
+    <div class="col-md-4">
+      <h3><b>Total Wins</b></h3>
       <div id="container">
         <canvas id="latesttotalwins" data-url="{% url 'latesttotalwins' %}"></canvas>
       </div>
@@ -45,18 +13,7 @@
           renderPieChart("#latesttotalwins");
       </script>
     </div>
-    <div class="col-md-6">
-      <h3><b>Avg. Kills Over Time</b></h3>
-      <div id="container">
-        <!-- <canvas id="avgkills" data-url="{% url 'avgkills' %}"></canvas> -->
-      </div>
-      <script>
-          // renderLineChart("#avgkills");
-      </script>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
       <h3><b>Total Wins Over Time</b></h3>
       <div id="container">
         <canvas id="totalwins" data-url="{% url 'totalwins' %}"></canvas>
@@ -65,7 +22,7 @@
           renderLineChart("#totalwins");
       </script>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
       <h3><b>Avg. Rank Over Time</b></h3>
       <div id="container">
         <canvas id="avgrank" data-url="{% url 'avgrank' %}"></canvas>
@@ -75,8 +32,60 @@
       </script>
     </div>
   </div>
+  <hr>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
+      <h3><b>Total Kills</b></h3>
+      <div id="container">
+        <canvas id="latesttotalkills" data-url="{% url 'latesttotalkills' %}"></canvas>
+      </div>
+      <script>
+          renderPieChart("#latesttotalkills");
+      </script>
+    </div>
+    <div class="col-md-4">
+      <h3><b>Total Kills Over Time</b></h3>
+      <div id="container">
+        <canvas id="totalkills" data-url="{% url 'totalkills' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totalkills");
+      </script>
+    </div>
+    <div class="col-md-4">
+      <h3><b>Avg. Kills Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgkills" data-url="{% url 'avgkills' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#avgkills");
+      </script>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-4">
+      <h3><b>K/D Ratio Over Time</b></h3>
+      <div id="container">
+        <canvas id="kdratio" data-url="{% url 'kdratio' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#kdratio");
+      </script>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-4">
+      <h3><b>Total Deaths</b></h3>
+      <div id="container">
+        <canvas id="latesttotaldeaths" data-url="{% url 'latesttotaldeaths' %}"></canvas>
+      </div>
+      <script>
+          renderPieChart("#latesttotaldeaths");
+      </script>
+    </div>
+    <div class="col-md-4">
       <h3><b>Total Deaths Over Time</b></h3>
       <div id="container">
         <canvas id="totaldeaths" data-url="{% url 'totaldeaths' %}"></canvas>
@@ -85,7 +94,7 @@
           renderLineChart("#totaldeaths");
       </script>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
       <h3><b>Avg. Deaths Over Time</b></h3>
       <div id="container">
         <canvas id="avgdeaths" data-url="{% url 'avgdeaths' %}"></canvas>
@@ -95,8 +104,18 @@
       </script>
     </div>
   </div>
+  <hr>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
+      <h3><b>Total Self-Destructs</b></h3>
+      <div id="container">
+        <canvas id="latesttotalsds" data-url="{% url 'latesttotalsds' %}"></canvas>
+      </div>
+      <script>
+          renderPieChart("#latesttotalsds");
+      </script>
+    </div>
+    <div class="col-md-4">
       <h3><b>Total Self-Destructs Over Time</b></h3>
       <div id="container">
         <canvas id="totalsds" data-url="{% url 'totalsds' %}"></canvas>
@@ -105,13 +124,73 @@
           renderLineChart("#totalsds", "line");
       </script>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
       <h3><b>Avg. Self-Destructs Over Time</b></h3>
       <div id="container">
         <canvas id="avgsds" data-url="{% url 'avgsds' %}"></canvas>
       </div>
       <script>
           renderLineChart("#avgsds", "line");
+      </script>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-4">
+      <h3><b>Total Damage Given</b></h3>
+      <div id="container">
+        <canvas id="latesttotaldmggiven" data-url="{% url 'latesttotaldmggiven' %}"></canvas>
+      </div>
+      <script>
+          renderPieChart("#latesttotaldmggiven");
+      </script>
+    </div>
+    <div class="col-md-4">
+      <h3><b>Total Damage Given Over Time</b></h3>
+      <div id="container">
+        <canvas id="totaldmggiven" data-url="{% url 'totaldmggiven' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totaldmggiven", "line");
+      </script>
+    </div>
+    <div class="col-md-4">
+      <h3><b>Avg. Damage Given Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgdmggiven" data-url="{% url 'avgdmggiven' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#avgdmggiven", "line");
+      </script>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-4">
+      <h3><b>Total Damage Taken</b></h3>
+      <div id="container">
+        <canvas id="latesttotaldmgtaken" data-url="{% url 'latesttotaldmgtaken' %}"></canvas>
+      </div>
+      <script>
+          renderPieChart("#latesttotaldmgtaken");
+      </script>
+    </div>
+    <div class="col-md-4">
+      <h3><b>Total Damage Taken Over Time</b></h3>
+      <div id="container">
+        <canvas id="totaldmgtaken" data-url="{% url 'totaldmgtaken' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totaldmgtaken", "line");
+      </script>
+    </div>
+    <div class="col-md-4">
+      <h3><b>Avg. Damage Taken Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgdmgtaken" data-url="{% url 'avgdmgtaken' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#avgdmgtaken", "line");
       </script>
     </div>
   </div>

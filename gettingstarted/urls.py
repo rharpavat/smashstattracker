@@ -27,6 +27,16 @@ urlpatterns = [
     path("totalsds/", stattracker.views.get_total_sds_chart, name="totalsds"),
     path("avgsds/", stattracker.views.get_avg_sds_chart, name="avgsds"),
     path("totalwins/", stattracker.views.get_total_wins_chart, name="totalwins"),
+    path("avgrank/", stattracker.views.get_avg_rank_chart, name="avgrank"),
+    path("totaldmggiven/", stattracker.views.get_total_dmggiven_chart, name="totaldmggiven"),
+    path("avgdmggiven/", stattracker.views.get_avg_dmggiven_chart, name="avgdmggiven"),
+    path("totaldmgtaken/", stattracker.views.get_total_dmgtaken_chart, name="totaldmgtaken"),
+    path("avgdmgtaken/", stattracker.views.get_avg_dmgtaken_chart, name="avgdmgtaken"),
+    path("kdratio/", stattracker.views.get_kdratio_chart, name="kdratio"),
     path("latesttotalwins/", stattracker.views.get_latest_total_wins_chart, name="latesttotalwins"),
-    path("avgrank/", stattracker.views.get_avg_rank_chart, name="avgrank")
+    path("latesttotalkills/", stattracker.views.get_latest_total_kills_chart, name="latesttotalkills"),
+    path("latesttotaldeaths/", stattracker.views.get_latest_total_deaths_chart, name="latesttotaldeaths"),
+    path("latesttotalsds/", stattracker.views.get_latest_total_sds_chart, name="latesttotalsds"),
+    path("latesttotaldmggiven/", stattracker.views.get_latest_total_dmggiven_chart, name="latesttotaldmggiven"),
+    path("latesttotaldmgtaken/", stattracker.views.get_latest_total_dmgtaken_chart, name="latesttotaldmgtaken")
 ]
