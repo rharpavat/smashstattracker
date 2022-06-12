@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class MatchDataTest(models.Model):
+class MatchData(models.Model):
     matchid = models.IntegerField()
     playerid = models.CharField(max_length=20)
     fighter = models.CharField(max_length=20)
@@ -12,13 +12,13 @@ class MatchDataTest(models.Model):
     selfdestructs = models.IntegerField()
     damagegiven = models.IntegerField(null=True)
     damagetaken = models.IntegerField(null=True)
-    stagename = models.CharField(max_length=50)
+    stagename = models.CharField(max_length=50, blank=True)
     matchdate = models.DateField()
 
     class Meta:
         unique_together = (('matchid', 'playerid'),)
 
-class PlayerStatsTest(models.Model):
+class PlayerStats(models.Model):
     playerid = models.CharField(max_length=20)
     collectiondate = models.DateField()
     totalkills = models.IntegerField()

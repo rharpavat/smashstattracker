@@ -9,15 +9,18 @@
       <img src="{% static 'lang-logo.png'%}">
     </a>
     <h1>Getting Started with Python on Heroku</h1>
-    <p>This is a sample Python application deployed to Heroku. It's a reasonably simple app - but a good foundation for understanding how to get the most out of the Heroku platform.</p>
+    <p>This is my big juicy test page!</p>
     <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'importdata' %}'"><span class="glyphicon glyphicon-flash"></span>Import Data</a>
-    <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'runanalytics' %}'"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
-    <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'viewgraphs' %}'"><span class="glyphicon glyphicon-flash"></span>View Stats!</a>
+    <a type="button" class="btn btn-lg btn-primary" href="https://github.com/heroku/python-getting-started"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
   </div>
 </div>
 <div class="container">
   <div class="alert alert-info text-center" role="alert">
-    To deploy your own copy, and learn the fundamentals of the Heroku platform, head over to the <a href="https://devcenter.heroku.com/articles/getting-started-with-python" class="alert-link">Getting Started with Python on Heroku</a> tutorial.
+    {% for player in playerinfo %}
+      <div class="user_pod">
+        <b>TotalDmgGiven:</b> {{ player.totaldmggiven }} <b>AvgDamageGiven:</b> {{ player.avgdmggiven }} <b>TotalDmgTaken:</b> {{ player.totaldmgtaken }} <b>AvgDmgTaken:</b> {{ player.avgdmgtaken }}
+      </div>
+    {% endfor %}
   </div>
   <hr>
   <div class="row">
@@ -25,7 +28,7 @@
       <h3><span class="glyphicon glyphicon-info-sign"></span> How this sample app works</h3>
       <ul>
         <li>This app was deployed to Heroku, either using Git or by using <a href="https://github.com/heroku/python-getting-started">Heroku Button</a> on the repository.</li>
-
+        <li>{{ playerinfo }}</li>
         <li>When Heroku received the source code, it fetched all the dependencies in <a href="https://github.com/heroku/python-getting-started/blob/main/requirements.txt">requirements.txt</a>, creating a deployable slug.</li>
         <li>The platform then spins up a dyno, a lightweight container that provides an isolated environment in which the slug can be mounted and executed.</li>
         <li>You can scale your app, manage it, and deploy over <a href="https://addons.heroku.com/">150 add-on services</a>, from the Dashboard or CLI.</li>

@@ -1,19 +1,131 @@
 from django.contrib import messages
 from django.db.models import Sum, Avg, Count, Max
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
 import gspread
 import json
 import os
 from oauth2client.service_account import ServiceAccountCredentials
+from collections import defaultdict
 
-from .models import MatchDataTest
-from .models import PlayerStatsTest
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+
+from chart.PieChart import PieChart
+from chart.LineChart import LineChart
+
+from .models import MatchData, PlayerStats
 
 # Create your views here.
 def index(request):
     return render(request, "index.html")
+
+def get_avg_kills_chart(request):
+    unique_players = get_unique_player_names()
+    kill_info = get_aggregated_avg_kills()
+
+    datelist = [item[1] for item in kill_info.keys()]
+    uniquedates = []
+    for date in datelist:
+        if date not in uniquedates:
+            uniquedates.append(date)
+
+    sorteddates = sorted(uniquedates)
+
+    # colors = ["#ea5545", "#f46a9b", "#ef9b20", "#edbf33", "#ede15b", "#bdcf32", "#87bc45", "#27aeef", "#b33dc6"]
+    colors = ["#ea5545", "#ffa600", "#87bc45", "#27aeef", "#b33dc6"]
+    bgcolors = ["rgba(234,85,69,0.5)", "rgba(255,166,0,0.5)", "rgba(135,188,69,0.5)", "rgba(39,174,239,0.5)", "rgba(179,61,198,0.5)"]
+    datasets = {
+        name : {
+            'label': name,
+            'data': [],
+            'fill': False,
+        }
+        for name in unique_players
+    }
+
+    ctr = 0
+    for key, value in datasets.items():
+        datasets[key]['borderColor'] = colors[ctr]
+        # datasets[key]['backgroundColor'] = bgcolors[ctr]
+        ctr += 1
+
+    for key, value in sorted(kill_info.items()):
+        datasets[key[0]]['data'].append(value)
+
+    findata = list(datasets.values())
+
+    return JsonResponse(data={
+        'labels': uniquedates,
+        'data': findata,
+        'datasets': datasets
+    })
+
+def view_graphs(request):
+    context = {}
+    win_info = get_aggregated_total_wins()
+
+    unique_players = get_unique_player_names()
+
+    NewChart = PieChart(list(win_info.values()), list(win_info.keys()))
+    NewChart.data.label = "My Favourite Numbers"      # can change data after creation
+
+    kill_info = get_aggregated_avg_kills()
+    
+    # playerlist = kill_info.keys()
+    datelist = [item[1] for item in kill_info.keys()]
+    uniquedates = []
+    for date in datelist:
+        if date not in uniquedates:
+            uniquedates.append(date)
+    
+    sorteddates = sorted(uniquedates)
+
+    ChartJSON = NewChart.get()
+
+    lchart = LineChart()
+    # lchart.data.datasets = []
+    lchart.labels.grouped = uniquedates
+
+    datasets = {
+        name : {
+            'label': name,
+            'data': []
+        }
+        for name in unique_players
+    }
+
+    for key, value in sorted(kill_info.items()):
+        datasets[key[0]]['data'].append(value)
+    
+    lchart.data.datasets = list(datasets.values())
+
+    # for 
+    # for pname, kinfo in kill_info.items():
+    #     dset = {}
+    #     dset['label'] = pname
+    #     dset['data'] = list(kinfo.values())
+    #     lchart.data.datasets.append(dset)
+    # lchart.data.datasets = [
+    #     {
+    #         data = 
+    #     }
+    # ]
+
+    context["chartJSON"] = ChartJSON
+    context["killChartJSON"] = lchart.get()
+    # context["otherdata"] = list(datasets.values())
+    context["otherdata2"] = kill_info
+    context["data"] = list(datasets.values())
+    context["labels"] = sorteddates
+
+
+    return render(request=request,
+                  template_name='graphs.html',
+                  context=context)
+    # return render(request, "graphs.html")
 
 def run_analytics(request):
     context = {
@@ -29,7 +141,7 @@ def run_analytics(request):
         totalkills = get_total_kills(name)
         totaldeaths = get_total_deaths(name)
 
-        stat_obj = PlayerStatsTest(
+        stat_obj = PlayerStats(
             playerid = name,
             collectiondate = get_latest_played_date(name),
             totalkills = totalkills,
@@ -69,7 +181,14 @@ def run_analytics(request):
         # pinfo['lastplayeddate'] = get_latest_played_date(name)
         # context['playerinfo'].append(pinfo)
 
-    PlayerStatsTest.objects.bulk_create(stat_objects, ignore_conflicts=True)
+    try:
+        PlayerStats.objects.bulk_create(stat_objects, ignore_conflicts=True)
+    except IntegrityError:
+        for obj in stat_objects:
+            try:
+                obj.save()
+            except IntegrityError:
+                continue
 
     return render(request, "testdatadisplayer.html", context)
 
@@ -85,7 +204,7 @@ def importdata(request):
     trimmedData = data[1:]
     consolidatedData = [item[:7] + item[13:] for item in trimmedData]
     convertedData = [
-        MatchDataTest(
+        MatchData(
             matchid = item[0],
             playerid = item[1],
             fighter = item[2],
@@ -101,76 +220,103 @@ def importdata(request):
         for item in consolidatedData
     ]
 
-    MatchDataTest.objects.bulk_create(convertedData, ignore_conflicts=True, batch_size=100)
+    MatchData.objects.bulk_create(convertedData, ignore_conflicts=True, batch_size=100)
 
     return redirect('index')
 
 def get_unique_player_names():
-    records = MatchDataTest.objects.values('playerid').distinct()
+    records = MatchData.objects.values('playerid').distinct()
     namelist = [item['playerid'] for item in records]
     return namelist
 
 def get_total_kills(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('kills')
+    records = MatchData.objects.filter(playerid=playerid).values('kills')
     info = records.aggregate(Sum('kills'))
     return info['kills__sum']
 
 def get_avg_kills(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('kills')
+    records = MatchData.objects.filter(playerid=playerid).values('kills')
     info = records.aggregate(Avg('kills'))
     return info['kills__avg']
 
 def get_total_deaths(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('deaths')
+    records = MatchData.objects.filter(playerid=playerid).values('deaths')
     info = records.aggregate(Sum('deaths'))
     return info['deaths__sum']
 
 def get_avg_deaths(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('deaths')
+    records = MatchData.objects.filter(playerid=playerid).values('deaths')
     info = records.aggregate(Avg('deaths'))
     return info['deaths__avg']
 
 def get_total_sds(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('selfdestructs')
+    records = MatchData.objects.filter(playerid=playerid).values('selfdestructs')
     info = records.aggregate(Sum('selfdestructs'))
     return info['selfdestructs__sum']
 
 def get_avg_sds(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('selfdestructs')
+    records = MatchData.objects.filter(playerid=playerid).values('selfdestructs')
     info = records.aggregate(Avg('selfdestructs'))
     return info['selfdestructs__avg']
 
 def get_total_wins(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid, playerrank=1).values('playerrank')
+    records = MatchData.objects.filter(playerid=playerid, playerrank=1).values('playerrank')
     info = records.aggregate(Count('playerrank'))
     return info['playerrank__count']
 
 def get_avg_rank(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('playerrank')
+    records = MatchData.objects.filter(playerid=playerid).values('playerrank')
     info = records.aggregate(Avg('playerrank'))
     return info['playerrank__avg']
 
 def get_total_dmggiven(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('damagegiven').exclude(damagegiven__isnull=True)
+    records = MatchData.objects.filter(playerid=playerid).values('damagegiven').exclude(damagegiven__isnull=True)
     info = records.aggregate(Sum('damagegiven'))
     return info['damagegiven__sum']
 
 def get_avg_dmggiven(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('damagegiven').exclude(damagegiven__isnull=True)
+    records = MatchData.objects.filter(playerid=playerid).values('damagegiven').exclude(damagegiven__isnull=True)
     info = records.aggregate(Avg('damagegiven'))
     return info['damagegiven__avg']
 
 def get_total_dmgtaken(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('damagetaken').exclude(damagetaken__isnull=True)
+    records = MatchData.objects.filter(playerid=playerid).values('damagetaken').exclude(damagetaken__isnull=True)
     info = records.aggregate(Sum('damagetaken'))
     return info['damagetaken__sum']
 
 def get_avg_dmgtaken(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('damagetaken').exclude(damagetaken__isnull=True)
+    records = MatchData.objects.filter(playerid=playerid).values('damagetaken').exclude(damagetaken__isnull=True)
     info = records.aggregate(Avg('damagetaken'))
     return info['damagetaken__avg']
 
 def get_latest_played_date(playerid):
-    records = MatchDataTest.objects.filter(playerid=playerid).values('matchdate').distinct()
+    records = MatchData.objects.filter(playerid=playerid).values('matchdate').distinct()
     info = records.aggregate(Max('matchdate'))
     return info['matchdate__max']
+
+def get_aggregated_total_wins():
+    infodict = {}
+    players = get_unique_player_names()
+    for player in players:
+        wincount = get_aggregated_total_wins_for_player(player)
+        infodict[player] = wincount
+
+    return infodict
+
+def get_aggregated_total_wins_for_player(playerid):
+    latest_date_played = get_latest_played_date(playerid)
+    records = PlayerStats.objects.filter(playerid=playerid, collectiondate=latest_date_played).values('totalwins')
+    return records[0]['totalwins']
+
+def get_aggregated_avg_kills():
+    infodict = {}
+    records = PlayerStats.objects.values('playerid', 'collectiondate', 'avgkills')
+
+    transformed = defaultdict(dict)
+    for record in records:
+        name = record['playerid']
+        date = str(record['collectiondate'])
+        kills = record['avgkills']
+        transformed[(name, date)] = float(kills)
+
+    return transformed

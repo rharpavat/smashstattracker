@@ -4,3 +4,4 @@ django-heroku
 psycopg2
 gspread
 oauth2client
+pychart.js

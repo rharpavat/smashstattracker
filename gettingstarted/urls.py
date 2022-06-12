@@ -18,5 +18,7 @@ urlpatterns = [
     path("", stattracker.views.index, name="index"),
     path("admin/", admin.site.urls),
     path("importdata/", stattracker.views.importdata, name="importdata"),
-    path("runanalytics/", stattracker.views.run_analytics, name="runanalytics")
+    path("runanalytics/", stattracker.views.run_analytics, name="runanalytics"),
+    path("graphs/", stattracker.views.view_graphs, name="viewgraphs"),
+    path("avgkills/", stattracker.views.get_avg_kills_chart, name="avgkills")
 ]
