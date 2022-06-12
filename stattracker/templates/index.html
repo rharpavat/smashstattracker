@@ -1,18 +1,116 @@
 {% extends "base.html" %}
-<!-- {% load static %} -->
-
+{% load static %}
 {% block content %}
 
 <div class="jumbotron text-center">
   <div class="container">
-    <a href="/" class="lang-logo">
-      <img src="{% static 'smash-ball-logo.png'%}">
-    </a>
-    <h1>Smash Ultimate Stat Tracker</h1>
-    <p>Tracks a variety of stats for Smash Ultimate games and displays a leaderboard! :)</p>
-    <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'importdata' %}'"><span class="glyphicon glyphicon-flash"></span>Import Data</a>
-    <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'runanalytics' %}'"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
-    <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'generateleaderboard' %}'"><span class="glyphicon glyphicon-download"></span>Generate Leaderboard</a>
+    <h1>Current Leaderboard</h1>
+    <div class="row">
+      <table class="styled-table">
+        <tbody>
+          <tr>
+            <td class="stat">{{ leaderboard.totalwins.0 }}</td>
+            <td class="player">{{ leaderboard.totalwins.1 }}</td>
+            <td class="value"><div class="bolded">{{ leaderboard.totalwins.2 }}</div> (matches won)</td>
+          </tr>
+          <tr>
+            <td class="stat">{{ leaderboard.avgrank.0 }}</td>
+            <td class="player">{{ leaderboard.avgrank.1 }}</td>
+            <td class="value"><div class="bolded">{{ leaderboard.avgrank.2 }}</div> (average rank)</td>
+          </tr>
+          <tr>
+            <td class="stat">{{ leaderboard.kdratio.0 }}</td>
+            <td class="player">{{ leaderboard.kdratio.1 }}</td>
+            <td class="value"><div class="bolded">{{ leaderboard.kdratio.2 }}</div> (kills per death)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col-md-5">
+        <table class="styled-table">
+          <tbody>
+            <tr>
+              <td class="stat">{{ leaderboard.totalkills.0 }}</td>
+              <td class="player">{{ leaderboard.totalkills.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.totalkills.2 }}</div> (total kills)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.totaldeaths.0 }}</td>
+              <td class="player">{{ leaderboard.totaldeaths.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.totaldeaths.2 }}</div> (total deaths)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.totalsds.0 }}</td>
+              <td class="player">{{ leaderboard.totalsds.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.totalsds.2 }}</div> (total SDs)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.totaldmggiven.0 }}</td>
+              <td class="player">{{ leaderboard.totaldmggiven.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.totaldmggiven.2 }}%</div> (total dmg given)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.totaldmgtaken.0 }}</td>
+              <td class="player">{{ leaderboard.totaldmgtaken.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.totaldmgtaken.2 }}%</div> (total dmg taken)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-7">
+        <table class="styled-table">
+          <tbody>
+            <tr>
+              <td class="stat">{{ leaderboard.avgkills.0 }}</td>
+              <td class="player">{{ leaderboard.avgkills.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.avgkills.2 }}</div> (kills per round)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.avgdeaths.0 }}</td>
+              <td class="player">{{ leaderboard.avgdeaths.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.avgdeaths.2 }}</div> (deaths per round)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.avgsds.0 }}</td>
+              <td class="player">{{ leaderboard.avgsds.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.avgsds.2 }}</div> (SDs per round)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.avgdmggiven.0 }}</td>
+              <td class="player">{{ leaderboard.avgdmggiven.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.avgdmggiven.2 }} % </div> (dmg given per round)</td>
+            </tr>
+            <tr>
+              <td class="stat">{{ leaderboard.avgdmgtaken.0 }}</td>
+              <td class="player">{{ leaderboard.avgdmgtaken.1 }}</td>
+              <td class="value"><div class="bolded">{{ leaderboard.avgdmgtaken.2 }} % </div> (dmg taken per round)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function(){
+
+        var colorMatch = {
+          'Rish'     : 'rish-text',
+          'Janey'    : 'janey-text',
+          'Harold'   : 'harold-text',
+          'CPU'      : 'cpu-text',
+          'N/A'      : 'na-text'
+        };
+
+        var curdiv;
+        var pname;
+        $('.player').each(function(index) {
+          curdiv = $(this);
+          pname = curdiv.text();
+          curdiv.addClass(colorMatch[pname]);
+        });
+      });
+    </script>
   </div>
 </div>
 <div class="container">
@@ -205,6 +303,18 @@
       <script>
           renderLineChart("#avgdmgtaken", "line");
       </script>
+    </div>
+  </div>
+  <div class="jumbotron text-center">
+    <div class="container">
+      <a href="/" class="lang-logo">
+        <img src="{% static 'smash-ball-logo.png'%}">
+      </a>
+      <h1>Smash Ultimate Stat Tracker</h1>
+      <p>Tracks a variety of stats for Smash Ultimate games and displays a leaderboard! :)</p>
+      <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'importdata' %}'"><span class="glyphicon glyphicon-flash"></span>Import Data</a>
+      <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'runanalytics' %}'"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
+      <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'generateleaderboard' %}'"><span class="glyphicon glyphicon-flash"></span>Generate Leaderboard</a>
     </div>
   </div>
 </div>

@@ -35,7 +35,9 @@ bgcolors = ["rgba(234,85,69,0.5)", "rgba(255,166,0,0.5)", "rgba(135,188,69,0.5)"
 # -------- WEBPAGE RENDERING FUNCTIONS --------
 
 def index(request):
-    return render(request, "index.html")
+    context = {}
+    context["leaderboard"] = get_leaderboard_info()
+    return render(request, "index.html", context)
 
 def view_graphs(request):
     return render(request, "graphs.html")
@@ -415,4 +417,33 @@ def get_latest_records_for_player(playerid):
 
     return records.values()[0]
 
-# -------- INDIVIDUAL STAT UTIL FUNCTIONS --------
+# ================================
+# LEADERBOARD QUERY UTIL FUNCTIONS
+# ================================
+
+def get_leaderboard_info():
+    prettified_labels = {
+        'totalkills': 'Most Murderous',
+        'totaldeaths': 'Most Murdered',
+        'totalsds': 'Most Suicidal',
+        'totaldmggiven': 'Most Violent',
+        'totaldmgtaken': 'Most Battered',
+        'totalwins': 'Most Victorious',
+        'avgkills': 'Most Consistently Murderous',
+        'avgdeaths': 'Most Consistently Murdered',
+        'avgsds': 'Most Consistently Suicidal',
+        'avgdmggiven': 'Most Consistently Violent',
+        'avgdmgtaken': 'Most Consistently Battered',
+        'kdratio': 'Highest K/D Ratio',
+        'avgrank': 'Highest Ranked'
+    }
+
+    records = Leaderboard.objects.values()
+    transformed = {}
+    for record in records:
+        statname = record['statistic']
+        player = record['playerid']
+        value = parse_stat_value(statname, record['value'])
+        transformed[statname] = (prettified_labels[statname], player, value)
+
+    return transformed
