@@ -18,108 +18,67 @@ from chart.LineChart import LineChart
 
 from .models import MatchData, PlayerStats
 
-# Create your views here.
+# ================================
+# VIEW FUNCTIONS
+# ================================
 def index(request):
     return render(request, "index.html")
 
+def get_total_kills_chart(request):
+    return get_stat_chart_over_time('totalkills')
+
 def get_avg_kills_chart(request):
-    unique_players = get_unique_player_names()
-    kill_info = get_aggregated_avg_kills()
+    return get_stat_chart_over_time('avgkills')
 
-    datelist = [item[1] for item in kill_info.keys()]
-    uniquedates = []
-    for date in datelist:
-        if date not in uniquedates:
-            uniquedates.append(date)
+def get_total_deaths_chart(request):
+    return get_stat_chart_over_time('totaldeaths')
 
-    sorteddates = sorted(uniquedates)
+def get_avg_deaths_chart(request):
+    return get_stat_chart_over_time('avgdeaths')
 
-    # colors = ["#ea5545", "#f46a9b", "#ef9b20", "#edbf33", "#ede15b", "#bdcf32", "#87bc45", "#27aeef", "#b33dc6"]
-    colors = ["#ea5545", "#ffa600", "#87bc45", "#27aeef", "#b33dc6"]
-    bgcolors = ["rgba(234,85,69,0.5)", "rgba(255,166,0,0.5)", "rgba(135,188,69,0.5)", "rgba(39,174,239,0.5)", "rgba(179,61,198,0.5)"]
-    datasets = {
-        name : {
-            'label': name,
-            'data': [],
-            'fill': False,
-        }
-        for name in unique_players
-    }
+def get_total_sds_chart(request):
+    return get_stat_chart_over_time('totalsds')
 
-    ctr = 0
-    for key, value in datasets.items():
-        datasets[key]['borderColor'] = colors[ctr]
-        # datasets[key]['backgroundColor'] = bgcolors[ctr]
-        ctr += 1
+def get_avg_sds_chart(request):
+    return get_stat_chart_over_time('avgsds')
 
-    for key, value in sorted(kill_info.items()):
-        datasets[key[0]]['data'].append(value)
+def get_total_wins_chart(request):
+    return get_stat_chart_over_time('totalwins')
 
-    findata = list(datasets.values())
+def get_latest_total_wins_chart(request):
+    return get_total_stat_chart('totalwins')
 
-    return JsonResponse(data={
-        'labels': uniquedates,
-        'data': findata,
-        'datasets': datasets
-    })
+def get_avg_rank_chart(request):
+    return get_stat_chart_over_time('avgrank')
 
 def view_graphs(request):
     context = {}
-    win_info = get_aggregated_total_wins()
+    # win_info = get_aggregated_total_wins()
 
-    unique_players = get_unique_player_names()
+    # unique_players = get_unique_player_names()
 
-    NewChart = PieChart(list(win_info.values()), list(win_info.keys()))
-    NewChart.data.label = "My Favourite Numbers"      # can change data after creation
+    # NewChart = PieChart(list(win_info.values()), list(win_info.keys()))
+    # NewChart.data.label = "My Favourite Numbers"      # can change data after creation
 
-    kill_info = get_aggregated_avg_kills()
+    # kill_info = get_aggregated_avg_kills()
     
-    # playerlist = kill_info.keys()
-    datelist = [item[1] for item in kill_info.keys()]
-    uniquedates = []
-    for date in datelist:
-        if date not in uniquedates:
-            uniquedates.append(date)
+    # # playerlist = kill_info.keys()
+    # datelist = [item[1] for item in kill_info.keys()]
+    # uniquedates = []
+    # for date in datelist:
+    #     if date not in uniquedates:
+    #         uniquedates.append(date)
     
-    sorteddates = sorted(uniquedates)
+    # sorteddates = sorted(uniquedates)
 
-    ChartJSON = NewChart.get()
+    # ChartJSON = NewChart.get()
 
-    lchart = LineChart()
-    # lchart.data.datasets = []
-    lchart.labels.grouped = uniquedates
-
-    datasets = {
-        name : {
-            'label': name,
-            'data': []
-        }
-        for name in unique_players
-    }
-
-    for key, value in sorted(kill_info.items()):
-        datasets[key[0]]['data'].append(value)
-    
-    lchart.data.datasets = list(datasets.values())
-
-    # for 
-    # for pname, kinfo in kill_info.items():
-    #     dset = {}
-    #     dset['label'] = pname
-    #     dset['data'] = list(kinfo.values())
-    #     lchart.data.datasets.append(dset)
-    # lchart.data.datasets = [
-    #     {
-    #         data = 
-    #     }
-    # ]
-
-    context["chartJSON"] = ChartJSON
-    context["killChartJSON"] = lchart.get()
-    # context["otherdata"] = list(datasets.values())
-    context["otherdata2"] = kill_info
-    context["data"] = list(datasets.values())
-    context["labels"] = sorteddates
+    # context["chartJSON"] = ChartJSON
+    # context["killChartJSON"] = lchart.get()
+    # # context["otherdata"] = list(datasets.values())
+    # context["otherdata2"] = kill_info
+    # context["data"] = list(datasets.values())
+    # context["labels"] = sorteddates
 
 
     return render(request=request,
@@ -294,29 +253,99 @@ def get_latest_played_date(playerid):
     info = records.aggregate(Max('matchdate'))
     return info['matchdate__max']
 
-def get_aggregated_total_wins():
-    infodict = {}
-    players = get_unique_player_names()
-    for player in players:
-        wincount = get_aggregated_total_wins_for_player(player)
-        infodict[player] = wincount
+# ================================
+# PLAYERSTATS QUERY UTIL FUNCTIONS
+# ================================
 
-    return infodict
+int_stats = ['totalkills', 'totaldeaths', 'totalsds', 'totaldmggiven', 'totaldmgtaken', 'totalwins']
+float_stats = ['avgkills', 'avgdeaths', 'avgsds', 'avgdmggiven', 'avgdmgtaken', 'kdratio', 'avgrank']
+colors = ["#ea5545", "#ffa600", "#87bc45", "#27aeef", "#b33dc6"]
+bgcolors = ["rgba(234,85,69,0.5)", "rgba(255,166,0,0.5)", "rgba(135,188,69,0.5)", "rgba(39,174,239,0.5)", "rgba(179,61,198,0.5)"]
 
-def get_aggregated_total_wins_for_player(playerid):
-    latest_date_played = get_latest_played_date(playerid)
-    records = PlayerStats.objects.filter(playerid=playerid, collectiondate=latest_date_played).values('totalwins')
-    return records[0]['totalwins']
+# -------- GENERIC STAT UTIL FUNCTIONS --------
 
-def get_aggregated_avg_kills():
-    infodict = {}
-    records = PlayerStats.objects.values('playerid', 'collectiondate', 'avgkills')
+def get_stat_chart_over_time(stat):
+    unique_players = get_unique_player_names()
+    info = get_aggregated_stat(stat)
+
+    datelist = [item[1] for item in info.keys()]
+    uniquedates = []
+    for date in datelist:
+        if date not in uniquedates:
+            uniquedates.append(date)
+
+    sorteddates = sorted(uniquedates)
+
+    datasets = {
+        name : {
+            'label': name,
+            'data': [],
+            'fill': False,
+        }
+        for name in unique_players
+    }
+
+    ctr = 0
+    for key, value in datasets.items():
+        datasets[key]['borderColor'] = colors[ctr]
+        datasets[key]['backgroundColor'] = bgcolors[ctr]
+        ctr += 1
+
+    for key, value in sorted(info.items()):
+        datasets[key[0]]['data'].append(value)
+
+    findata = list(datasets.values())
+
+    return JsonResponse(data={
+        'labels': uniquedates,
+        'data': findata
+    })
+
+def get_aggregated_stat(statname):
+    records = PlayerStats.objects.values('playerid', 'collectiondate', statname)
 
     transformed = defaultdict(dict)
     for record in records:
         name = record['playerid']
         date = str(record['collectiondate'])
-        kills = record['avgkills']
-        transformed[(name, date)] = float(kills)
+        value = record[statname]
+        transformed[(name, date)] = parse_stat_value(statname, value)
 
     return transformed
+
+def get_total_stat_chart(stat):
+    infodict = {}
+
+    players = get_unique_player_names()
+    for player in players:
+        count = get_latest_total_stat_for_player(stat, player)
+        infodict[player] = count
+
+    dataset = [
+        {
+            'data': list(infodict.values()),
+            'backgroundColor': colors,
+            'hoverOffset': 4
+        }
+    ]
+
+    return JsonResponse(data={
+        'labels': list(infodict.keys()),
+        'data': dataset
+    })
+
+def get_latest_total_stat_for_player(statname, playerid):
+    latest_date_played = get_latest_played_date(playerid)
+    records = PlayerStats.objects.filter(playerid=playerid, collectiondate=latest_date_played).values(statname)
+    return records[0][statname]
+
+def parse_stat_value(statname, value): #TODO: Add exception case if the value doesn't fall under either category
+    if statname in int_stats:
+        return int(value)
+
+    if statname in float_stats:
+        return float(value)
+
+# -------- INDIVIDUAL STAT UTIL FUNCTIONS --------
+def get_aggregated_avg_kills():
+    return get_aggregated_stat('avgkills')

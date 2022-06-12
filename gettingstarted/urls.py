@@ -20,5 +20,13 @@ urlpatterns = [
     path("importdata/", stattracker.views.importdata, name="importdata"),
     path("runanalytics/", stattracker.views.run_analytics, name="runanalytics"),
     path("graphs/", stattracker.views.view_graphs, name="viewgraphs"),
-    path("avgkills/", stattracker.views.get_avg_kills_chart, name="avgkills")
+    path("totalkills/", stattracker.views.get_total_kills_chart, name="totalkills"),
+    path("avgkills/", stattracker.views.get_avg_kills_chart, name="avgkills"),
+    path("totaldeaths/", stattracker.views.get_total_deaths_chart, name="totaldeaths"),
+    path("avgdeaths/", stattracker.views.get_avg_deaths_chart, name="avgdeaths"),
+    path("totalsds/", stattracker.views.get_total_sds_chart, name="totalsds"),
+    path("avgsds/", stattracker.views.get_avg_sds_chart, name="avgsds"),
+    path("totalwins/", stattracker.views.get_total_wins_chart, name="totalwins"),
+    path("latesttotalwins/", stattracker.views.get_latest_total_wins_chart, name="latesttotalwins"),
+    path("avgrank/", stattracker.views.get_avg_rank_chart, name="avgrank")
 ]

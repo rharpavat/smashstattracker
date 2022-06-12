@@ -4,83 +4,116 @@
 {% block content %}
 <div class="container">
   <h1><b>Total Wins</b></h1>
-  <canvas id="myChart"></canvas>
+  <!-- <canvas id="myChart"></canvas>
 
   <script>
       var data = {{ chartJSON | safe }}
       var ctx = document.getElementById("myChart").getContext('2d');
       var myChart = new Chart(ctx, data);
-  </script>
+  </script> -->
   <hr>
   <h1><b>Avg. Kills Over Time</b></h1>
-  <div id="container">
-    <canvas id="kill-chart" data-url="{% url 'avgkills' %}"></canvas>
-  </div>
 
-  <script>
-      $(function () {
-
-        var $killchart = $("#kill-chart");
-        $.ajax({
-          url: $killchart.data("url"),
-          success: function (data) {
-
-            console.log(data);
-
-            var ctx = $killchart[0].getContext("2d");
-
-            new Chart(ctx, {
-              type: 'line',
-              data: {
-                labels: data.labels,
-                datasets: data.data
-              },
-              options: {
-                responsive: true,
-                legend: {
-                  position: 'right',
-                }
-              }
-            });
-
-          }
-        });
-
-      });
-  </script>
   <hr>
   <div class="row">
     <div class="col-md-6">
-      <h3><span class="glyphicon glyphicon-info-sign"></span> How this sample app works</h3>
-      {{otherdata}}
+      <h3><b>Total Kills Over Time</b></h3>
+      <div id="container">
+        <canvas id="totalkills" data-url="{% url 'totalkills' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totalkills");
+      </script>
     </div>
     <div class="col-md-6">
-      <h3><span class="glyphicon glyphicon-info-sign"></span> How this sample app works</h3>
-      {{otherdata2}}
+      <h3><b>Avg. Kills Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgkills" data-url="{% url 'avgkills' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#avgkills");
+      </script>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3><b>Latest Total Wins</b></h3>
+      <div id="container">
+        <canvas id="latesttotalwins" data-url="{% url 'latesttotalwins' %}"></canvas>
+      </div>
+      <script>
+          renderPieChart("#latesttotalwins");
+      </script>
     </div>
     <div class="col-md-6">
-      <h3><span class="glyphicon glyphicon-link"></span> Next Steps</h3>
-      <ul>
-        <li>If you are following the <a href="https://devcenter.heroku.com/articles/getting-started-with-python">Getting Started</a> guide, then please head back to the tutorial and follow the next steps!</li>
-        <li>If you deployed this app by deploying the Heroku Button, then in a command line shell, run:</li>
-        <ul>
-          <li><code>git clone https://github.com/heroku/python-getting-started.git</code> - this will create a local copy of the source code for the app</li>
-          <li><code>cd python-getting-started</code> - change directory into the local source code repository</li>
-          <li><code>heroku git:remote -a &lt;your-app-name></code> - associate the Heroku app with the repository</li>
-          <li>You'll now be set up to run the app locally, or <a href="https://devcenter.heroku.com/articles/getting-started-with-python#push-local-changes">deploy changes</a> to Heroku</li>
-        </ul>
-      </ul>
-      <h3><span class="glyphicon glyphicon-link"></span> Helpful Links</h3>
-      <ul>
-        <li><a href="https://www.heroku.com/home">Heroku</a></li>
-        <li><a href="https://devcenter.heroku.com/">Heroku Dev Center</a></li>
-        <li><a href="https://devcenter.heroku.com/articles/getting-started-with-python">Getting Started with Python on Heroku</a></li>
-        <li><a href="https://devcenter.heroku.com/articles/django-app-configuration">Configuring Django Apps for Heroku</a></li>
-      </ul>
+      <h3><b>Avg. Kills Over Time</b></h3>
+      <div id="container">
+        <!-- <canvas id="avgkills" data-url="{% url 'avgkills' %}"></canvas> -->
+      </div>
+      <script>
+          // renderLineChart("#avgkills");
+      </script>
     </div>
-  </div> <!-- row -->
-   <div class="alert alert-info text-center" role="alert">
-    Please do work through the Getting Started guide, even if you do know how to build such an application.  The guide covers the basics of working with Heroku, and will familiarize you with all the concepts you need in order to build and deploy your own apps.
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3><b>Total Wins Over Time</b></h3>
+      <div id="container">
+        <canvas id="totalwins" data-url="{% url 'totalwins' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totalwins");
+      </script>
+    </div>
+    <div class="col-md-6">
+      <h3><b>Avg. Rank Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgrank" data-url="{% url 'avgrank' %}"></canvas>
+      </div>
+      <script>
+          renderInverseLineChart("#avgrank");
+      </script>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3><b>Total Deaths Over Time</b></h3>
+      <div id="container">
+        <canvas id="totaldeaths" data-url="{% url 'totaldeaths' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totaldeaths");
+      </script>
+    </div>
+    <div class="col-md-6">
+      <h3><b>Avg. Deaths Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgdeaths" data-url="{% url 'avgdeaths' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#avgdeaths");
+      </script>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3><b>Total Self-Destructs Over Time</b></h3>
+      <div id="container">
+        <canvas id="totalsds" data-url="{% url 'totalsds' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#totalsds", "line");
+      </script>
+    </div>
+    <div class="col-md-6">
+      <h3><b>Avg. Self-Destructs Over Time</b></h3>
+      <div id="container">
+        <canvas id="avgsds" data-url="{% url 'avgsds' %}"></canvas>
+      </div>
+      <script>
+          renderLineChart("#avgsds", "line");
+      </script>
+    </div>
   </div>
 </div>
 {% endblock %}
