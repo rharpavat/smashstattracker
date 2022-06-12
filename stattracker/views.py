@@ -198,7 +198,7 @@ def importdata(request):
     creds = ServiceAccountCredentials.from_json_keyfile_dict(apikey,scope)
     client = gspread.authorize(creds)
 
-    sheet = client.open("SmashStats").worksheet("StatTest")
+    sheet = client.open("SmashStats").worksheet("StatSheet")
     data = sheet.get_values()
 
     trimmedData = data[1:]
