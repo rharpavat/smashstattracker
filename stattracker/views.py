@@ -112,6 +112,8 @@ def generate_leaderboard(request):
     stat_list = int_stats + float_stats
     players = get_unique_player_names()
 
+    players.remove("CPU")
+
     leaderboard = {
         stat: ["nullplayer", -1]
         for stat in stat_list
@@ -151,7 +153,7 @@ def generate_leaderboard(request):
 
     for obj in stat_objects:
         try:
-            obj.save()
+            obj.save(force_update=True)
         except IntegrityError:
             continue
 
@@ -444,6 +446,11 @@ def get_leaderboard_info():
         statname = record['statistic']
         player = record['playerid']
         value = parse_stat_value(statname, record['value'])
-        transformed[statname] = (prettified_labels[statname], player, value)
+
+        if ", " in player:
+            players = player.split(", ")
+        else:
+            players = [player]
+        transformed[statname] = (prettified_labels[statname], players, value)
 
     return transformed

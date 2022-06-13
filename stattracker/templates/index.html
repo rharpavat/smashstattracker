@@ -12,17 +12,29 @@
         <tbody>
           <tr>
             <td class="stat">{{ leaderboard.totalwins.0 }}</td>
-            <td class="player">{{ leaderboard.totalwins.1 }}</td>
+            <td>
+              {% for playername in leaderboard.totalwins.1 %}
+                <span class="player">{{ playername }}</span>
+              {% endfor %}
+            </td>
             <td class="value"><div class="bolded">{{ leaderboard.totalwins.2 }}</div> (matches won)</td>
           </tr>
           <tr>
             <td class="stat">{{ leaderboard.avgrank.0 }}</td>
-            <td class="player">{{ leaderboard.avgrank.1 }}</td>
+            <td>
+              {% for playername in leaderboard.avgrank.1 %}
+                <span class="player">{{ playername }}</span>
+              {% endfor %}
+            </td>
             <td class="value"><div class="bolded">{{ leaderboard.avgrank.2 }}</div> (average rank)</td>
           </tr>
           <tr>
             <td class="stat">{{ leaderboard.kdratio.0 }}</td>
-            <td class="player">{{ leaderboard.kdratio.1 }}</td>
+            <td>
+              {% for playername in leaderboard.kdratio.1 %}
+                <span class="player">{{ playername }}</span>
+              {% endfor %}
+            </td>
             <td class="value"><div class="bolded">{{ leaderboard.kdratio.2 }}</div> (kills per death)</td>
           </tr>
         </tbody>
@@ -35,27 +47,47 @@
           <tbody>
             <tr>
               <td class="stat">{{ leaderboard.totalkills.0 }}</td>
-              <td class="player">{{ leaderboard.totalkills.1 }}</td>
+              <td>
+                {% for playername in leaderboard.totalkills.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.totalkills.2 }}</div> (total kills)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.totaldeaths.0 }}</td>
-              <td class="player">{{ leaderboard.totaldeaths.1 }}</td>
+              <td>
+                {% for playername in leaderboard.totaldeaths.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.totaldeaths.2 }}</div> (total deaths)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.totalsds.0 }}</td>
-              <td class="player">{{ leaderboard.totalsds.1 }}</td>
+              <td>
+                {% for playername in leaderboard.totalsds.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.totalsds.2 }}</div> (total SDs)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.totaldmggiven.0 }}</td>
-              <td class="player">{{ leaderboard.totaldmggiven.1 }}</td>
+              <td>
+                {% for playername in leaderboard.totaldmggiven.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.totaldmggiven.2 }}%</div> (total dmg given)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.totaldmgtaken.0 }}</td>
-              <td class="player">{{ leaderboard.totaldmgtaken.1 }}</td>
+              <td>
+                {% for playername in leaderboard.totaldmgtaken.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.totaldmgtaken.2 }}%</div> (total dmg taken)</td>
             </tr>
           </tbody>
@@ -67,27 +99,47 @@
           <tbody>
             <tr>
               <td class="stat">{{ leaderboard.avgkills.0 }}</td>
-              <td class="player">{{ leaderboard.avgkills.1 }}</td>
+              <td>
+                {% for playername in leaderboard.avgkills.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.avgkills.2 }}</div> (kills per round)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.avgdeaths.0 }}</td>
-              <td class="player">{{ leaderboard.avgdeaths.1 }}</td>
+              <td>
+                {% for playername in leaderboard.avgdeaths.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.avgdeaths.2 }}</div> (deaths per round)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.avgsds.0 }}</td>
-              <td class="player">{{ leaderboard.avgsds.1 }}</td>
+              <td>
+                {% for playername in leaderboard.avgsds.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.avgsds.2 }}</div> (SDs per round)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.avgdmggiven.0 }}</td>
-              <td class="player">{{ leaderboard.avgdmggiven.1 }}</td>
+              <td>
+                {% for playername in leaderboard.avgdmggiven.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.avgdmggiven.2 }} % </div> (dmg given per round)</td>
             </tr>
             <tr>
               <td class="stat">{{ leaderboard.avgdmgtaken.0 }}</td>
-              <td class="player">{{ leaderboard.avgdmgtaken.1 }}</td>
+              <td>
+                {% for playername in leaderboard.avgdmgtaken.1 %}
+                  <span class="player">{{ playername }}</span>
+                {% endfor %}
+              </td>
               <td class="value"><div class="bolded">{{ leaderboard.avgdmgtaken.2 }} % </div> (dmg taken per round)</td>
             </tr>
           </tbody>

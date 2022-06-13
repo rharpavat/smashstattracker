@@ -39,7 +39,7 @@ class PlayerStats(models.Model):
         unique_together = (('playerid', 'collectiondate'),)
 
 class Leaderboard(models.Model):
-    statistic = models.CharField(max_length=20, unique=True)
+    statistic = models.CharField(max_length=20, primary_key=True)
     playerid = models.CharField(max_length=20)
     value = models.DecimalField(max_digits=10, decimal_places=2)
 

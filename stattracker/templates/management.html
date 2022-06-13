@@ -3,15 +3,14 @@
 {% block content %}
 
 <div class="jumbotron text-center">
+  <div class="container">
     <div class="container">
-        <a href="/" class="lang-logo">
-            <img src="{% static 'smash-ball-logo.png'%}">
-        </a>
-        <h1>Smash Ultimate Stat Tracker</h1>
-        <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'importdata' %}'"><span class="glyphicon glyphicon-flash"></span>Import Data</a>
-        <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'runanalytics' %}'"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
-        <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'generateleaderboard' %}'"><span class="glyphicon glyphicon-flash"></span>Generate Leaderboard</a>
+      <h1><img class="lang-logo" src="{% static 'smash-ball-logo.png'%}"> Smash Ultimate Stat Tracker</h1>
     </div>
+    <a type="button" target="_blank" class="btn btn-lg btn-default" onclick="location.href='{% url 'importdata' %}'"><span class="glyphicon glyphicon-flash"></span>Import Data</a>
+    <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'runanalytics' %}'"><span class="glyphicon glyphicon-download"></span>Run Analytics</a>
+    <a type="button" target="_blank" class="btn btn-lg btn-primary" onclick="location.href='{% url 'generateleaderboard' %}'"><span class="glyphicon glyphicon-flash"></span>Generate Leaderboard</a>
+  </div>
 </div>
 
 {% endblock %}
