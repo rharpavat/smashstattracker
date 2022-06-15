@@ -44,11 +44,16 @@ def manage(request):
 
 def perplayerstats(request):
     context = {
-        "win_fighters": {}
+        "win_fighters": {},
+        "kill_fighters": {},
+        "death_fighters": {}
     }
+
     players = get_unique_player_names()
     for player in players:
         context["win_fighters"][player] = get_top_3_winning_fighters_for_player(player)
+        context["kill_fighters"][player] = get_top_3_killing_fighters_for_player(player)
+        context["death_fighters"][player] = get_top_3_dying_fighters_for_player(player)
 
     return render(request, "perplayerstats.html", context)
 
@@ -337,8 +342,19 @@ def get_latest_played_date(playerid):
 # ================================
 
 def get_top_3_winning_fighters_for_player(playerid):
-
     records = MatchData.objects.filter(playerid=playerid, playerrank=1).values('playerid', 'fighter').annotate(wincount=Count('playerrank')).values_list('fighter', 'wincount')
+    transformed = [item for item in records]
+    transformed.sort(key = lambda x: x[1], reverse=True)
+    return transformed[:3]
+
+def get_top_3_killing_fighters_for_player(playerid):
+    records = MatchData.objects.filter(playerid=playerid).values('playerid', 'fighter').annotate(killcount=Sum('kills')).values_list('fighter', 'killcount')
+    transformed = [item for item in records]
+    transformed.sort(key = lambda x: x[1], reverse=True)
+    return transformed[:3]
+
+def get_top_3_dying_fighters_for_player(playerid):
+    records = MatchData.objects.filter(playerid=playerid).values('playerid', 'fighter').annotate(deathcount=Sum('deaths')).values_list('fighter', 'deathcount')
     transformed = [item for item in records]
     transformed.sort(key = lambda x: x[1], reverse=True)
     return transformed[:3]
