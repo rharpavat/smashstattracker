@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="jumbotron text-center">
+  <div class="container">
+    <div class="container">
+      <h1>Most Victorious Fighters</h1>
+      <h2></h2>
+    </div>
+    <div class="container">
+      <h1><img class="lang-logo" src="{% static 'smash-ball-logo.png'%}"> Smash Ultimate Stat Tracker</h1>
+    </div>
+    <div class="row">
+      {% for player, data in win_fighters.items %}
+      <div class="col-md-3">
+        <h2><span class="player">{{ player }}</span></h2>
+        <table class="styled-table">
+          <tbody>
+            {% for win_info in data %}
+              <tr>
+                <td class="stat">{{ forloop.counter }}</td>
+                <td>
+                  <span class="player">{{ win_info.0 }}</span>
+                </td>
+                <td class="value"><span class="bolded">{{ win_info.1 }}</span> (matches won)</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+    </div>
+    <script>
+      $(document).ready(function(){
+
+        var colorMatch = {
+          'Rish'     : 'rish-text',
+          'Janey'    : 'janey-text',
+          'Harold'   : 'harold-text',
+          'CPU'      : 'cpu-text',
+          'N/A'      : 'na-text'
+        };
+
+        var curdiv;
+        var pname;
+        $('.player').each(function(index) {
+          curdiv = $(this);
+          pname = curdiv.text();
+          curdiv.addClass(colorMatch[pname]);
+        });
+      });
+    </script>
+  </div>
+</div>
+
+{% endblock %}

@@ -42,6 +42,16 @@ def index(request):
 def manage(request):
     return render(request, "management.html")
 
+def perplayerstats(request):
+    context = {
+        "win_fighters": {}
+    }
+    players = get_unique_player_names()
+    for player in players:
+        context["win_fighters"][player] = get_top_3_winning_fighters_for_player(player)
+
+    return render(request, "perplayerstats.html", context)
+
 def run_analytics(request):
     context = {
         "playerinfo": []
@@ -321,6 +331,17 @@ def get_latest_played_date(playerid):
     records = MatchData.objects.filter(playerid=playerid).values('matchdate').distinct()
     info = records.aggregate(Max('matchdate'))
     return info['matchdate__max']
+
+# ================================
+# MATCHDATA QUERY UTIL FUNCTIONS
+# ================================
+
+def get_top_3_winning_fighters_for_player(playerid):
+
+    records = MatchData.objects.filter(playerid=playerid, playerrank=1).values('playerid', 'fighter').annotate(wincount=Count('playerrank')).values_list('fighter', 'wincount')
+    transformed = [item for item in records]
+    transformed.sort(key = lambda x: x[1], reverse=True)
+    return transformed[:3]
 
 # ================================
 # PLAYERSTATS QUERY UTIL FUNCTIONS
